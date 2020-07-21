@@ -2,6 +2,7 @@
 using Stash.Utils;
 using System;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
 
 namespace Stash
@@ -22,11 +23,11 @@ namespace Stash
             StashObject = new GameObject("Stash");
             DontDestroyOnLoad(StashObject);
 
-            string path = Directory.GetCurrentDirectory();
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            ConfigHelper.EnsureConfig($"{path}\\Modules\\Stash\\config.json");
+            ConfigHelper.EnsureConfig($"{path}{Path.DirectorySeparatorChar}config.json");
 
-            Config = ConfigHelper.ReadConfig($"{path}\\Modules\\Stash\\config.json");
+            Config = ConfigHelper.ReadConfig($"{path}{Path.DirectorySeparatorChar}config.json");
 
             StashObject.AddComponent<StashManager>();
         }
