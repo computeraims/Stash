@@ -16,4 +16,4 @@ password - string - Password to your mysql database<br>
 port - number - Port to your mysql database<br>
 
 # Support
-For plugin support join Discord https://discord.com/invite/ADUmgFt
+For plugin support join Discord https://discord.gg/CteHzWr
