@@ -4,6 +4,11 @@
 # Commands
 /stash
 
+# Installing
+1. Download the latest release from https://github.com/computeraims/Stash/releases
+2. Extract the folder to your Unturned/Modules folder (Ex: D:\Unturned\Modules)
+3. Start your server!
+
 # Config
 width - number - Width of the stash<br>
 height - number - Height of the stash<br>
