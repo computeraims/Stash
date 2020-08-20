@@ -2,8 +2,6 @@
 using SDG.Unturned;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Stash.Database
@@ -31,7 +29,7 @@ namespace Stash.Database
             catch (MySqlException ex)
             {
                 Console.WriteLine(ex);
-                //Main.Instance.UnloadPlugin();
+                Main.Instance.shutdown();
             }
         }
 
@@ -106,12 +104,10 @@ namespace Stash.Database
 
                     while (dataReader.Read())
                     {
-                        Console.WriteLine($"Data Reader Found Item: {dataReader["itemID"]}");
-
                         items.Add(new ItemJar((byte)Convert.ToInt32(dataReader["x"]), (byte)Convert.ToInt32(dataReader["y"]), (byte)Convert.ToInt32(dataReader["rotation"]), new Item(Convert.ToUInt16(dataReader["itemID"]), true)
                         {
                             durability = (byte)Convert.ToInt32(dataReader["durability"]),
-                            metadata = Encoding.UTF8.GetBytes(dataReader["metadata"].ToString()),
+                            metadata = stringToBytes(dataReader["metadata"].ToString()),
                             amount = (byte)Convert.ToInt32(dataReader["amount"])
                         }));
                     }
@@ -135,8 +131,6 @@ namespace Stash.Database
 
         private static async Task AddItemAsync(string steamID, ItemJar item)
         {
-            string metatext = (item.item.metadata is null) ? "" : Encoding.UTF8.GetString(item.item.metadata);
-
             using (MySqlConnection connection = CreateConnection())
             {
                 try
@@ -154,7 +148,7 @@ namespace Stash.Database
                     command.Parameters.AddWithValue("@Rotation", item.rot);
                     command.Parameters.AddWithValue("@Durability", item.item.durability);
                     command.Parameters.AddWithValue("@Amount", item.item.amount);
-                    command.Parameters.AddWithValue("@Metadata", metatext);
+                    command.Parameters.AddWithValue("@Metadata", bytesToString(item.item.metadata));
 
                     await connection.OpenAsync();
                     await command.ExecuteNonQueryAsync();
@@ -174,8 +168,6 @@ namespace Stash.Database
 
         private static async Task DeleteItemAsync(string steamID, ItemJar item)
         {
-            string metatext = (item.item.metadata is null) ? "" : Encoding.UTF8.GetString(item.item.metadata);
-
             using (MySqlConnection connection = CreateConnection())
             {
                 try
@@ -189,7 +181,7 @@ namespace Stash.Database
                     command.Parameters.AddWithValue("@ItemID", item.item.id);
                     command.Parameters.AddWithValue("@Durability", item.item.durability);
                     command.Parameters.AddWithValue("@Amount", item.item.amount);
-                    command.Parameters.AddWithValue("@Metadata", metatext);
+                    command.Parameters.AddWithValue("@Metadata", bytesToString(item.item.metadata));
 
                     await connection.OpenAsync();
                     await command.ExecuteNonQueryAsync();
@@ -209,8 +201,6 @@ namespace Stash.Database
 
         private static async Task UpdateItemAsync(string steamID, ItemJar item)
         {
-            string metatext = (item.item.metadata is null) ? "" : Encoding.UTF8.GetString(item.item.metadata);
-
             using (MySqlConnection connection = CreateConnection())
             {
                 try
@@ -222,7 +212,7 @@ namespace Stash.Database
                     );
 
                     command.Parameters.AddWithValue("@SteamID", steamID);
-                    command.Parameters.AddWithValue("@Metadata", metatext);
+                    command.Parameters.AddWithValue("@Metadata", bytesToString(item.item.metadata));
                     command.Parameters.AddWithValue("@ItemID", item.item.id);
 
                     await connection.OpenAsync();
@@ -239,6 +229,34 @@ namespace Stash.Database
         public static void UpdateItem(string steamID, ItemJar item)
         {
             UpdateItemAsync(steamID, item).GetAwaiter().GetResult();
+        }
+
+        public static byte[] stringToBytes(string @string)
+        {
+            string[] output2 = @string.Split(',');
+            List<byte> bytesList = new List<byte> { };
+            foreach (string str in output2)
+            {
+                bytesList.Add(Byte.Parse(str));
+            }
+            return bytesList.ToArray();
+        }
+
+        public static string bytesToString(byte[] bytes)
+        {
+            string output = "";
+            for (int i = 0; i <= bytes.Length - 1; i++)
+            {
+                if (i == bytes.Length - 1)
+                {
+                    output += bytes[i].ToString();
+                }
+                else
+                {
+                    output += bytes[i].ToString() + ",";
+                }
+            }
+            return output;
         }
     }
 }

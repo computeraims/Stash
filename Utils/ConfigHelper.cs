@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Stash.Utils
 {
@@ -41,7 +37,6 @@ namespace Stash.Utils
                 stashConfig.Add("password", "root");
                 stashConfig.Add("port", 3306);
 
-                // write JSON directly to a file
                 using (StreamWriter file = File.CreateText(path))
                 using (JsonTextWriter writer = new JsonTextWriter(file))
                 {

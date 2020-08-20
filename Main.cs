@@ -20,6 +20,8 @@ namespace Stash
             Instance = this;
             Console.WriteLine("Stash by Corbyn loaded");
 
+            UnityThread.initUnityThread();
+
             StashObject = new GameObject("Stash");
             DontDestroyOnLoad(StashObject);
 
