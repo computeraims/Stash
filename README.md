@@ -4,6 +4,11 @@
 # Commands
 /stash
 
+# Installing
+1. Download the latest release from https://github.com/computeraims/Stash/releases
+2. Extract the folder to your Unturned/Modules folder (Ex: D:\Unturned\Modules)
+3. Start your server!
+
 # Config
 width - number - Width of the stash<br>
 height - number - Height of the stash<br>
@@ -16,4 +21,4 @@ password - string - Password to your mysql database<br>
 port - number - Port to your mysql database<br>
 
 # Support
-For plugin support join Discord https://discord.com/invite/ADUmgFt
+For plugin support join Discord https://discord.gg/CteHzWr
