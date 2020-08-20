@@ -104,10 +104,12 @@ namespace Stash.Database
 
                     while (dataReader.Read())
                     {
+                        byte[] metadata = stringToBytes(Convert.ToString(dataReader["metadata"]));
+
                         items.Add(new ItemJar((byte)Convert.ToInt32(dataReader["x"]), (byte)Convert.ToInt32(dataReader["y"]), (byte)Convert.ToInt32(dataReader["rotation"]), new Item(Convert.ToUInt16(dataReader["itemID"]), true)
                         {
                             durability = (byte)Convert.ToInt32(dataReader["durability"]),
-                            metadata = stringToBytes(dataReader["metadata"].ToString()),
+                            metadata = metadata,
                             amount = (byte)Convert.ToInt32(dataReader["amount"])
                         }));
                     }
@@ -131,6 +133,8 @@ namespace Stash.Database
 
         private static async Task AddItemAsync(string steamID, ItemJar item)
         {
+            string metatext = (item.item.metadata is null) ? "" : bytesToString(item.item.metadata);
+
             using (MySqlConnection connection = CreateConnection())
             {
                 try
@@ -148,7 +152,7 @@ namespace Stash.Database
                     command.Parameters.AddWithValue("@Rotation", item.rot);
                     command.Parameters.AddWithValue("@Durability", item.item.durability);
                     command.Parameters.AddWithValue("@Amount", item.item.amount);
-                    command.Parameters.AddWithValue("@Metadata", bytesToString(item.item.metadata));
+                    command.Parameters.AddWithValue("@Metadata", metatext);
 
                     await connection.OpenAsync();
                     await command.ExecuteNonQueryAsync();
@@ -168,20 +172,23 @@ namespace Stash.Database
 
         private static async Task DeleteItemAsync(string steamID, ItemJar item)
         {
+            string metatext = (item.item.metadata is null) ? "" : bytesToString(item.item.metadata);
+
             using (MySqlConnection connection = CreateConnection())
             {
                 try
                 {
                     MySqlCommand command = new MySqlCommand
                     (
-                        $@"DELETE FROM {Table} WHERE `steamID` = @SteamID AND `itemID` = @ItemID AND `durability` = @Durability AND `amount` = @Amount and `metadata` = @Metadata LIMIT 1;", connection
+                        $@"DELETE FROM {Table} WHERE `steamID` = @SteamID AND `itemID` = @ItemID AND `durability` = @Durability AND `amount` = @Amount AND `x` = @X AND `y` = @Y LIMIT 1;", connection
                     );
 
                     command.Parameters.AddWithValue("@SteamID", steamID);
                     command.Parameters.AddWithValue("@ItemID", item.item.id);
                     command.Parameters.AddWithValue("@Durability", item.item.durability);
                     command.Parameters.AddWithValue("@Amount", item.item.amount);
-                    command.Parameters.AddWithValue("@Metadata", bytesToString(item.item.metadata));
+                    command.Parameters.AddWithValue("@X", item.x);
+                    command.Parameters.AddWithValue("@Y", item.y);
 
                     await connection.OpenAsync();
                     await command.ExecuteNonQueryAsync();
@@ -201,6 +208,8 @@ namespace Stash.Database
 
         private static async Task UpdateItemAsync(string steamID, ItemJar item)
         {
+            string metatext = (item.item.metadata is null) ? "" : bytesToString(item.item.metadata);
+
             using (MySqlConnection connection = CreateConnection())
             {
                 try
@@ -212,7 +221,7 @@ namespace Stash.Database
                     );
 
                     command.Parameters.AddWithValue("@SteamID", steamID);
-                    command.Parameters.AddWithValue("@Metadata", bytesToString(item.item.metadata));
+                    command.Parameters.AddWithValue("@Metadata", metatext);
                     command.Parameters.AddWithValue("@ItemID", item.item.id);
 
                     await connection.OpenAsync();
@@ -233,6 +242,9 @@ namespace Stash.Database
 
         public static byte[] stringToBytes(string @string)
         {
+            if (String.IsNullOrEmpty(@string))
+                return new byte[18];
+
             string[] output2 = @string.Split(',');
             List<byte> bytesList = new List<byte> { };
             foreach (string str in output2)
