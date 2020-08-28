@@ -129,7 +129,7 @@ namespace Stash.Utils
 
         ////////////////////////////////////////////LATEUPDATE IMPL////////////////////////////////////////////////////
 #if (ENABLE_LATEUPDATE_FUNCTION_CALLBACK)
-        public static void executeInLateUpdate(System.Action action)
+        public static void executeInLateUpdate(Action action)
         {
             if (action == null)
             {

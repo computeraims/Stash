@@ -10,9 +10,7 @@ namespace Stash
     public class Main : MonoBehaviour, IModuleNexus
     {
         private static GameObject StashObject;
-
         public static Main Instance;
-
         public static Config Config;
 
         public void initialize()
@@ -26,9 +24,7 @@ namespace Stash
             DontDestroyOnLoad(StashObject);
 
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
             ConfigHelper.EnsureConfig($"{path}{Path.DirectorySeparatorChar}config.json");
-
             Config = ConfigHelper.ReadConfig($"{path}{Path.DirectorySeparatorChar}config.json");
 
             StashObject.AddComponent<StashManager>();

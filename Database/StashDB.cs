@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Nito.AsyncEx;
 using SDG.Unturned;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace Stash.Database
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex.Message);
             }
             return connection;
         }
@@ -79,12 +80,12 @@ namespace Stash.Database
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine(ex.Message);
                 }
             }
         }
 
-        private static async Task<List<ItemJar>> GetItemsAsync(string steamID)
+        public static async Task<List<ItemJar>> GetItemsAsync(string steamID)
         {
             using (MySqlConnection connection = CreateConnection())
             {
@@ -115,7 +116,6 @@ namespace Stash.Database
                     }
                     dataReader.Close();
                     await connection.CloseAsync();
-
                 }
                 catch (Exception ex)
                 {
@@ -126,12 +126,7 @@ namespace Stash.Database
             }
         }
 
-        public static List<ItemJar> GetItems(string steamID)
-        {
-            return GetItemsAsync(steamID).GetAwaiter().GetResult();
-        }
-
-        private static async Task AddItemAsync(string steamID, ItemJar item)
+        public static async Task AddItemAsync(string steamID, ItemJar item)
         {
             string metatext = (item.item.metadata is null) ? "" : bytesToString(item.item.metadata);
 
@@ -165,12 +160,7 @@ namespace Stash.Database
             }
         }
 
-        public static void AddItem(string steamID, ItemJar item)
-        {
-            AddItemAsync(steamID, item).GetAwaiter().GetResult();
-        }
-
-        private static async Task DeleteItemAsync(string steamID, ItemJar item)
+        public static async Task DeleteItemAsync(string steamID, ItemJar item)
         {
             string metatext = (item.item.metadata is null) ? "" : bytesToString(item.item.metadata);
 
@@ -196,17 +186,12 @@ namespace Stash.Database
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine(ex.Message);
                 }
             }
         }
 
-        public static void DeleteItem(string steamID, ItemJar item)
-        {
-            DeleteItemAsync(steamID, item).GetAwaiter().GetResult();
-        }
-
-        private static async Task UpdateItemAsync(string steamID, ItemJar item)
+        public static async Task UpdateItemAsync(string steamID, ItemJar item)
         {
             string metatext = (item.item.metadata is null) ? "" : bytesToString(item.item.metadata);
 
@@ -230,14 +215,9 @@ namespace Stash.Database
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine(ex.Message);
                 }
             }
-        }
-
-        public static void UpdateItem(string steamID, ItemJar item)
-        {
-            UpdateItemAsync(steamID, item).GetAwaiter().GetResult();
         }
 
         public static byte[] stringToBytes(string @string)

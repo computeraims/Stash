@@ -1,7 +1,11 @@
 ﻿using SDG.Unturned;
 using Stash.Commands;
+using Stash.Database;
 using Stash.Utils;
+using Steamworks;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Stash
@@ -13,7 +17,6 @@ namespace Stash
             Console.WriteLine("StashManager loaded");
 
             Commander.register(new CommandStash());
-
             ChatManager.onCheckPermissions += OnCheckedPermissions;
         }
 

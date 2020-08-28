@@ -1,16 +1,18 @@
-﻿using SDG.Unturned;
+﻿using Nito.AsyncEx;
+using SDG.Unturned;
 using Stash.Database;
 using Stash.Utils;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Stash.Commands
 {
     public class CommandStash : Command
     {
-        protected override void execute(CSteamID executor, string parameter)
+        protected override async void execute(CSteamID executor, string parameter)
         {
             Player ply = PlayerTool.getPlayer(executor);
 
@@ -24,11 +26,10 @@ namespace Stash.Commands
             }
 
             Items stash = new Items(7);
-
             stash.resize((byte)Main.Config.width, (byte)Main.Config.height);
 
-            List<ItemJar> items = StashDB.GetItems(executor.ToString());
-
+            //List<ItemJar> items = AsyncContext.Run(async () => await Task.Run(() => StashDB.GetItemsAsync(executor.ToString())));
+            List<ItemJar> items = await Task.Run(() => StashDB.GetItemsAsync(executor.ToString()));
             foreach (ItemJar item in items)
             {
                 ItemAsset itemAsset = (ItemAsset)Assets.find(EAssetType.ITEM, item.item.id);
@@ -46,22 +47,24 @@ namespace Stash.Commands
                 }
             }
 
-            stash.onItemAdded = (byte page, byte index, ItemJar item) => {
-                StashDB.AddItem(executor.ToString(), item);
+            stash.onItemAdded = async (byte page, byte index, ItemJar item) => {
+                await Task.Run(() => StashDB.AddItemAsync(executor.ToString(), item));
+                //AsyncContext.Run(async () => await Task.Run(() => StashDB.AddItemAsync(executor.ToString(), item)));
             };
 
-            stash.onItemRemoved = (byte page, byte index, ItemJar item) =>
+            stash.onItemRemoved = async (byte page, byte index, ItemJar item) =>
             {
-                StashDB.DeleteItem(executor.ToString(), item);
+                await Task.Run(() => StashDB.DeleteItemAsync(executor.ToString(), item));
+                //AsyncContext.Run(async () => await Task.Run(() => StashDB.DeleteItemAsync(executor.ToString(), item)));
             };
 
-            stash.onItemUpdated = (byte page, byte index, ItemJar item) =>
+            stash.onItemUpdated = async (byte page, byte index, ItemJar item) =>
             {
-                StashDB.UpdateItem(executor.ToString(), item);
+                await Task.Run(() => StashDB.DeleteItemAsync(executor.ToString(), item));
+                //AsyncContext.Run(async () => await Task.Run(() => StashDB.UpdateItemAsync(executor.ToString(), item)));
             };
 
             ply.inventory.updateItems(7, stash);
-
             ply.inventory.sendStorage();
         }
 
